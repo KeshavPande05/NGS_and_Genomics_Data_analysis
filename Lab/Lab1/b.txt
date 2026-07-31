@@ -1,0 +1,5 @@
+Human - Homo sapiens 
+Rice - orzya sativa 
+Dog - Canis familaris 
+cow - Bos Indicus
+Monkey - Macaca mulatta 

@@ -1,0 +1,3 @@
+Name	Scientific_name
+Human	Homo sapiens
+Rice	Oryza sativa
