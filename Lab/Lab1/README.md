@@ -325,50 +325,6 @@ legend(
 
 ---
 
-# 🧬 Bioinformatics Commands
-
-## QUAST
-
-Assembly quality assessment
-
-```bash
-quast assembly.fna -o quast_output
-```
-
-Compare assemblies
-
-```bash
-quast assembly1.fna assembly2.fna -o comparison
-```
-
----
-
-## RagTag
-
-Correction
-
-```bash
-ragtag.py correct reference.fna draft.fna -o correct_output
-```
-
-Scaffolding
-
-```bash
-ragtag.py scaffold reference.fna correct_output/ragtag.correct.fasta -o scaffold_output
-```
-
----
-
-## BWA
-
-Index a reference genome
-
-```bash
-bwa index genome.fna
-```
-
----
-
 # 💡 Useful Linux Shortcuts
 
 | Shortcut | Description |
