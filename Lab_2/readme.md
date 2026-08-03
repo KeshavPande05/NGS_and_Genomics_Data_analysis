@@ -1,34 +1,43 @@
-````markdown
 # 🧬 Bacterial Genome Assembly Using SPAdes
 
-This project demonstrates a complete **de novo bacterial genome assembly pipeline** using Illumina paired-end sequencing data. The workflow includes raw read quality assessment, read trimming, genome assembly using SPAdes, assembly evaluation with QUAST, and comparison of different assembly strategies.
+![Platform](https://img.shields.io/badge/Platform-Linux-blue)
+![Language](https://img.shields.io/badge/Shell-Bash-green)
+![Assembler](https://img.shields.io/badge/SPAdes-v3.15+-orange)
+![Quality](https://img.shields.io/badge/QUAST-Assembly_Evaluation-red)
+
+A complete **de novo bacterial genome assembly pipeline** using Illumina paired-end sequencing data. The workflow performs quality assessment, read trimming, genome assembly, assembly evaluation, and comparison of different assembly strategies.
+
+---
+
+## 📖 Overview
+
+This project demonstrates a typical bacterial genome assembly workflow using:
+
+- **FastQC** for quality assessment
+- **Trim Galore** for adapter and quality trimming
+- **SPAdes** for genome assembly
+- **QUAST** for assembly quality evaluation
+
+The pipeline compares:
+
+- Default SPAdes assembly
+- SPAdes assembly using **k = 55**
+- Contigs vs Scaffolds
+- Final assembly quality
 
 ---
 
 ## 📂 Project Structure
 
-```
+```text
 1_Bacterial_genome_assembly/
 │
 ├── 1_Raw_data/
-│   ├── SRR8389900_1.fastq.gz
-│   └── SRR8389900_2.fastq.gz
-│
 ├── 2_Fastqc/
-│   └── Raw read FastQC reports
-│
 ├── 3_Trim/
-│   ├── SRR8389900_1_val_1.fq.gz
-│   ├── SRR8389900_2_val_2.fq.gz
 │   └── Q_28/
-│
 ├── 4_Assembly/
-│   ├── contigs.fasta
-│   ├── scaffolds.fasta
-│   ├── final_contigs.fasta
-│   ├── final_scaffolds.fasta
 │   └── K_55_New/
-│
 └── 5_Quality_stats/
     ├── Contigs/
     ├── Scaffolds/
@@ -37,9 +46,68 @@ This project demonstrates a complete **de novo bacterial genome assembly pipelin
 
 ---
 
-# 📋 Workflow
+# 🧰 Prerequisites
 
-## Step 1: Create Project Directory
+Install the required software before running the pipeline.
+
+| Software | Version |
+|----------|---------|
+| Conda | Latest |
+| FastQC | Latest |
+| Trim Galore | Latest |
+| SPAdes | 3.15+ |
+| QUAST | Latest |
+
+Install using Bioconda:
+
+```bash
+conda install -c bioconda fastqc trim-galore spades quast -y
+```
+
+---
+
+# 📥 Dataset
+
+- **NCBI SRA Run:** `SRR8389900`
+- Sequencing Platform: **Illumina Paired-End**
+
+The download script is automatically generated from the SRA metadata file.
+
+---
+
+# 🔬 Workflow
+
+```text
+Raw Reads
+     │
+     ▼
+ FastQC
+     │
+     ▼
+ Trim Galore
+     │
+     ▼
+ FastQC
+     │
+     ▼
+ SPAdes Assembly
+     │
+     ├──────────────┐
+     ▼              ▼
+ Default        K=55 Assembly
+     │              │
+     └──────┬───────┘
+            ▼
+         QUAST
+            ▼
+     Assembly Comparison
+```
+
+---
+
+# 🚀 Pipeline
+
+## 1. Create Project Directory
 
 ```bash
 mkdir 1_Bacterial_genome_assembly
@@ -48,9 +116,7 @@ cd 1_Bacterial_genome_assembly
 
 ---
 
-## Step 2: Download Raw Sequencing Reads
-
-Generate and execute the download script from the SRA file report.
+## 2. Download Raw Reads
 
 ```bash
 cut -f 7 filereport_read_run_SRR8389900.tsv > raw_data.sh
@@ -60,7 +126,7 @@ bash raw_data.sh
 
 ---
 
-## Step 3: Create Project Folders
+## 3. Create Project Structure
 
 ```bash
 mkdir \
@@ -73,7 +139,7 @@ mkdir \
 
 ---
 
-## Step 4: Organize Raw Reads
+## 4. Organize Raw Reads
 
 ```bash
 mv *.gz 1_Raw_data/
@@ -81,9 +147,7 @@ mv *.gz 1_Raw_data/
 
 ---
 
-## Step 5: Assess Raw Read Quality
-
-Run FastQC on the raw sequencing reads.
+## 5. Quality Check
 
 ```bash
 fastqc 1_Raw_data/*.gz -o 2_Fastqc/
@@ -91,75 +155,56 @@ fastqc 1_Raw_data/*.gz -o 2_Fastqc/
 
 ---
 
-## Step 6: Install Trim Galore
-
-```bash
-conda install -c bioconda trim-galore -y
-```
-
----
-
-## Step 7: Trim Reads (Quality Score = 20)
+## 6. Trim Reads (Q20)
 
 ```bash
 trim_galore \
 -q 20 \
---gzip \
 --paired \
+--gzip \
 1_Raw_data/*.gz \
 -o 3_Trim/
 ```
 
 ---
 
-## Step 8: Trim Reads (Quality Score = 28)
+## 7. Trim Reads (Q28)
 
 ```bash
 mkdir -p 3_Trim/Q_28
 
 trim_galore \
 -q 28 \
---gzip \
 --paired \
+--gzip \
 1_Raw_data/*.gz \
 -o 3_Trim/Q_28/
 ```
 
 ---
 
-## Step 9: Evaluate Trimmed Reads
-
-### Q20
+## 8. FastQC After Trimming
 
 ```bash
-fastqc \
-3_Trim/SRR8389900_1_val_1.fq.gz \
-3_Trim/SRR8389900_2_val_2.fq.gz
-```
-
-### Q28
-
-```bash
-fastqc \
-3_Trim/Q_28/SRR8389900_1_val_1.fq.gz \
-3_Trim/Q_28/SRR8389900_2_val_2.fq.gz
+fastqc 3_Trim/*.fq.gz
+fastqc 3_Trim/Q_28/*.fq.gz
 ```
 
 ---
 
-## Step 10: Genome Assembly (Default SPAdes)
+## 9. Genome Assembly (Default)
 
 ```bash
 spades \
 -1 3_Trim/SRR8389900_1_val_1.fq.gz \
 -2 3_Trim/SRR8389900_2_val_2.fq.gz \
 --cov-cutoff auto \
--o 4_Assembly/
+-o 4_Assembly
 ```
 
 ---
 
-## Step 11: Genome Assembly (k-mer = 55)
+## 10. Genome Assembly (k = 55)
 
 ```bash
 spades.py \
@@ -174,89 +219,32 @@ spades.py \
 
 ---
 
-## Step 12: Count Contigs and Scaffolds
-
-### Default Assembly
+## 11. Count Contigs & Scaffolds
 
 ```bash
-grep -c ">" 4_Assembly/contigs.fasta
-grep -c ">" 4_Assembly/scaffolds.fasta
-grep -c ">" 4_Assembly/final_contigs.fasta
-grep -c ">" 4_Assembly/final_scaffolds.fasta
-```
-
-### k = 55 Assembly
-
-```bash
-grep -c ">" 4_Assembly/K_55_New/k_55_contigs.fasta
-grep -c ">" 4_Assembly/K_55_New/k_55_scaffolds.fasta
-
-grep -c ">" 4_Assembly/K_55_New/K55/final_contigs.fasta
-grep -c ">" 4_Assembly/K_55_New/K55/scaffolds.fasta
+grep -c ">" 4_Assembly/*.fasta
+grep -c ">" 4_Assembly/K_55_New/*.fasta
 ```
 
 ---
 
-## Step 13: Install QUAST
+## 12. Assembly Quality Assessment
 
 ```bash
-conda install -c bioconda quast -y
-```
+quast 4_Assembly/contigs.fasta -o 5_Quality_stats/Contigs/Default_Q20
 
----
+quast 4_Assembly/scaffolds.fasta -o 5_Quality_stats/Scaffolds/Default_Q20
 
-## Step 14: Create QUAST Output Directories
-
-```bash
-mkdir -p \
-5_Quality_stats/Contigs/Default_Q20 \
-5_Quality_stats/Contigs/K_55_New \
-5_Quality_stats/Scaffolds/Default_Q20 \
-5_Quality_stats/Scaffolds/K_New_55 \
-5_Quality_stats/Final_Comparison
-```
-
----
-
-## Step 15: Evaluate Assemblies Using QUAST
-
-### Default Contigs
-
-```bash
-quast \
-4_Assembly/contigs.fasta \
--o 5_Quality_stats/Contigs/Default_Q20
-```
-
-### Default Scaffolds
-
-```bash
-quast \
-4_Assembly/scaffolds.fasta \
--o 5_Quality_stats/Scaffolds/Default_Q20
-```
-
-### k = 55 Contigs
-
-```bash
-quast \
-4_Assembly/K_55_New/k_55_contigs.fasta \
+quast 4_Assembly/K_55_New/k_55_contigs.fasta \
 -o 5_Quality_stats/Contigs/K_55_New
-```
 
-### k = 55 Scaffolds
-
-```bash
-quast \
-4_Assembly/K_55_New/k_55_scaffolds.fasta \
+quast 4_Assembly/K_55_New/k_55_scaffolds.fasta \
 -o 5_Quality_stats/Scaffolds/K_New_55
 ```
 
 ---
 
-## Step 16: Final Assembly Comparison
-
-Compare all generated assemblies in a single QUAST report.
+## 13. Final Assembly Comparison
 
 ```bash
 quast \
@@ -274,48 +262,61 @@ quast \
 
 | Tool | Purpose |
 |------|---------|
-| FastQC | Quality assessment of sequencing reads |
-| Trim Galore | Adapter removal and quality trimming |
+| FastQC | Read quality assessment |
+| Trim Galore | Adapter removal and trimming |
 | SPAdes | De novo genome assembly |
 | QUAST | Assembly quality evaluation |
 
 ---
 
-# 📈 Quality Metrics Evaluated
+# 📈 Assembly Metrics
 
-The assemblies were compared using the following metrics:
+The assemblies are evaluated using:
 
+- Total Assembly Length
 - Number of Contigs
 - Number of Scaffolds
-- Total Assembly Length
 - Largest Contig
 - Largest Scaffold
 - N50
 - L50
 - GC Content
-- Number of Ns per 100 kbp
+- Ns per 100 kbp
 
 ---
 
-# 📝 Results
+# 📁 Output
 
-The QUAST reports generated in the `5_Quality_stats` directory can be used to compare:
+```
+5_Quality_stats/
+│
+├── Contigs/
+├── Scaffolds/
+└── Final_Comparison/
+```
 
-- Default SPAdes assembly
-- SPAdes assembly with **k = 55**
-- Final contigs
-- Final scaffolds
-
-The best assembly is selected based on improved assembly continuity (higher N50), fewer contigs/scaffolds, and overall genome completeness.
+The `Final_Comparison` directory contains a comprehensive QUAST report comparing all generated assemblies.
 
 ---
 
-# 🧑‍💻 Author
+# 🎯 Learning Objectives
+
+- Perform quality assessment of Illumina sequencing reads.
+- Trim adapters and low-quality bases.
+- Assemble bacterial genomes using SPAdes.
+- Compare different assembly strategies.
+- Evaluate assembly quality using QUAST.
+- Interpret assembly metrics such as N50, L50, and genome completeness.
+
+---
+
+# 👨‍💻 Author
 
 **Keshav Pande**
 
-- M.Sc. Big Data Biology
-- Institute of Bioinformatics and Applied Biotechnology (IBAB)
+**M.Sc. Big Data Biology**  
+Institute of Bioinformatics and Applied Biotechnology (IBAB)
 
 ---
-````
+
+## ⭐ If you found this repository useful, consider giving it a star!
