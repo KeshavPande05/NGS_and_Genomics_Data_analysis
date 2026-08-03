@@ -299,6 +299,52 @@ The `Final_Comparison` directory contains a comprehensive QUAST report comparing
 
 ---
 
+# 📊 Interpretation of QUAST Metrics
+
+QUAST (Quality Assessment Tool for Genome Assemblies) provides several statistics to evaluate the quality of genome assemblies. The following guide explains the meaning of each metric and how to interpret it.
+
+| Metric | Description | Interpretation |
+|--------|-------------|----------------|
+| **# contigs (>= 0 bp)** | Total number of contigs produced by the assembler. | Lower values generally indicate a more contiguous and less fragmented assembly. |
+| **# contigs (>= 1000 bp)** | Number of contigs that are at least 1 kb long. | A higher number indicates more long contigs, but fewer total contigs is generally preferred. |
+| **# contigs (>= 5000 bp)** | Number of contigs longer than 5 kb. | Larger values indicate that more of the genome has been assembled into long continuous sequences. |
+| **# contigs (>= 10000 bp)** | Number of contigs longer than 10 kb. | More large contigs generally reflect better assembly continuity. |
+| **# contigs (>= 25000 bp)** | Number of contigs longer than 25 kb. | Indicates the presence of very large assembled genomic regions. |
+| **# contigs (>= 50000 bp)** | Number of contigs longer than 50 kb. | A larger number suggests higher assembly quality with long uninterrupted sequences. |
+| **Total length (>= 0 bp)** | Combined length of all contigs. | Should be close to the expected genome size. Large deviations may indicate missing or duplicated regions. |
+| **Total length (>= 1000 bp)** | Total length considering only contigs ≥1 kb. | Useful for excluding very small contigs that may represent assembly artifacts. |
+| **Total length (>= 5000 bp)** | Total assembly length using contigs ≥5 kb. | Higher values indicate that most of the genome is represented by long contigs. |
+| **Total length (>= 10000 bp)** | Total length using contigs ≥10 kb. | Indicates the contribution of long contigs to the genome assembly. |
+| **Total length (>= 25000 bp)** | Total length using contigs ≥25 kb. | Reflects the proportion of the genome assembled into very large fragments. |
+| **Total length (>= 50000 bp)** | Total length using contigs ≥50 kb. | Larger values indicate highly contiguous assemblies. |
+| **# contigs** | Number of contigs after QUAST filtering (typically ≥500 bp). | Lower values indicate less fragmented assemblies. |
+| **Largest contig** | Length of the longest contig in the assembly. | Larger values are desirable because they indicate long continuous assembled regions. |
+| **Total length** | Total size of the assembled genome after filtering. | Should closely match the expected genome size of the organism. |
+| **GC (%)** | Percentage of guanine (G) and cytosine (C) bases in the assembly. | Should be consistent with the known GC content of the organism. Significant deviations may indicate contamination or assembly errors. |
+| **N50** | The contig length such that 50% of the total assembly length is contained in contigs of this size or larger. | Higher N50 values indicate better assembly continuity and are one of the most widely used assembly quality metrics. |
+| **N90** | Similar to N50, but covers 90% of the assembly. | Higher N90 values indicate that even smaller contigs remain relatively long, reflecting improved continuity. |
+| **auN** | Area under the Nx curve, summarizing assembly continuity across all Nx values. | Larger auN values indicate better overall assembly quality and continuity. It is considered more informative than N50 alone. |
+| **L50** | Minimum number of largest contigs required to cover 50% of the assembly. | Lower L50 values are better because fewer contigs are needed to represent half of the genome. |
+| **L90** | Minimum number of largest contigs required to cover 90% of the assembly. | Lower values indicate greater assembly continuity. |
+| **# N's per 100 kbp** | Number of ambiguous bases ('N') per 100,000 bp. Ns represent gaps introduced during scaffolding. | Lower values indicate fewer gaps. Contig assemblies usually have 0 Ns, while scaffold assemblies may contain some Ns. Excessive Ns may indicate poor scaffolding. |
+
+---
+
+## 📌 General Guidelines for Assessing Assembly Quality
+
+A high-quality genome assembly typically has the following characteristics:
+
+- ✅ **Fewer contigs** (less fragmentation)
+- ✅ **Larger longest contig**
+- ✅ **Higher N50 and N90 values**
+- ✅ **Higher auN value**
+- ✅ **Lower L50 and L90 values**
+- ✅ **Total assembly length close to the expected genome size**
+- ✅ **GC content matching the organism's known GC percentage**
+- ✅ **Fewer ambiguous bases (Ns), especially in scaffold assemblies**
+
+No single metric determines assembly quality. Instead, multiple metrics should be evaluated together to obtain a comprehensive assessment of the genome assembly.
+
 # 🎯 Learning Objectives
 
 - Perform quality assessment of Illumina sequencing reads.
