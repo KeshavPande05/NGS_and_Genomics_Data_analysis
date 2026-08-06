@@ -1,22 +1,39 @@
 # 🧬 Hybrid Genome Assembly Using Unicycler
 
-A complete step-by-step workflow for **bacterial genome assembly** using **Illumina short reads** and **Oxford Nanopore long reads**. This pipeline performs quality control, read trimming, genome assembly using different strategies, and assembly evaluation using QUAST.
+A step-by-step workflow for **de novo bacterial genome assembly** using **Illumina short reads** and **Oxford Nanopore long reads**. The pipeline includes quality assessment, read trimming, genome assembly using multiple strategies, and assembly evaluation with QUAST.
 
 ---
 
 ## 📖 Overview
 
-This project demonstrates the complete genome assembly workflow:
+This project demonstrates a complete hybrid genome assembly workflow:
 
-- Quality assessment of raw sequencing reads
-- Quality assessment of Nanopore reads
+- Quality assessment of Illumina and Nanopore reads
 - Adapter and quality trimming of Illumina reads
-- Short-read-only assembly
-- Long-read-only assembly
+- Short-read genome assembly
+- Long-read genome assembly
 - Hybrid genome assembly
-- Hybrid assembly using Conservative mode
-- Hybrid assembly using Bold mode
-- Comparison of all assemblies using QUAST
+- Conservative and Bold hybrid assemblies
+- Assembly comparison using QUAST
+
+---
+
+## 🚀 Workflow
+
+| Step | Tool | Purpose |
+|------|------|---------|
+| **1. Project Setup** | Linux | Create a structured directory to organize inputs, outputs, and intermediate files. |
+| **2. Raw Read QC** | FastQC | Assess the quality of Illumina reads and detect low-quality bases, GC bias, and adapter contamination. |
+| **3. Long Read QC** | NanoPlot | Evaluate Nanopore read quality, read length distribution, and sequencing yield. |
+| **4. Read Trimming** | Trim Galore | Remove adapters and low-quality bases to improve assembly accuracy. |
+| **5. QC After Trimming** | FastQC | Verify that trimming successfully improved read quality. |
+| **6. Short-Read Assembly** | Unicycler | Assemble the genome using only Illumina reads, producing highly accurate but potentially fragmented assemblies. |
+| **7. Long-Read Assembly** | Unicycler | Assemble the genome using only Nanopore reads to improve genome continuity across repetitive regions. |
+| **8. Hybrid Assembly** | Unicycler | Combine Illumina accuracy with Nanopore long reads to generate a high-quality genome assembly. |
+| **9. Assembly Evaluation** | QUAST | Evaluate assembly quality using metrics such as N50, contig count, genome length, and GC content. |
+| **10. Conservative Assembly** | Unicycler | Perform hybrid assembly in **conservative mode** to minimize potential misassemblies. |
+| **11. Bold Assembly** | Unicycler | Perform hybrid assembly in **bold mode** to maximize assembly contiguity. |
+| **12. Final Comparison** | QUAST | Compare all assemblies to identify the best-performing assembly based on standard quality metrics. |
 
 ---
 
@@ -24,18 +41,18 @@ This project demonstrates the complete genome assembly workflow:
 
 | Tool | Purpose |
 |------|----------|
-| FastQC | Quality control of Illumina reads |
+| FastQC | Quality assessment of Illumina reads |
 | NanoPlot | Quality assessment of Nanopore reads |
 | Trim Galore | Adapter removal and quality trimming |
 | Unicycler | Genome assembly |
 | QUAST | Assembly quality evaluation |
-| Conda | Package management |
+| Conda | Environment and package management |
 
 ---
 
 ## 📂 Project Structure
 
-```
+```text
 Hybrid_Assembly/
 │
 ├── 1_raw_fastqc/
@@ -45,246 +62,59 @@ Hybrid_Assembly/
 │   └── FastQC After Trimming
 │
 ├── 2_unicycler_shortonly/
-│
 ├── 3_unicycler_longonly/
-│
 ├── 4_unicycler_hybrid/
-│
 ├── 5_unicycler_hybrid_conservative/
-│
 ├── 6_unicycler_hybrid_bold/
-│
 └── Quast_report_after_all_assembly_to_compare/
 ```
 
 ---
 
-# Workflow
-
-## Step 1 — Create Working Directory
-
-Create the project directory and required subdirectories.
-
----
-
-## Step 2 — Raw Read Quality Assessment
-
-Run **FastQC** on Illumina paired-end reads.
-
-Input
-
-- illumina_f.fq
-- illumina_r.fq
-
-Output
-
-- HTML quality reports
-- ZIP reports
-
----
-
-## Step 3 — Nanopore Read Quality Assessment
-
-Evaluate Oxford Nanopore reads using **NanoPlot**.
-
-Input
-
-- minion_2d.fq
-
-Output
-
-- HTML report
-- Read length distribution
-- Quality score plots
-
----
-
-## Step 4 — Trim Illumina Reads
-
-Remove adapters and low-quality bases using **Trim Galore**.
-
-Quality cutoff
-
-```
-Phred Score = 28
-```
-
-Output
-
-- illumina_f_val_1.fq
-- illumina_r_val_2.fq
-
----
-
-## Step 5 — Quality Check After Trimming
-
-Run FastQC again on the trimmed reads to verify quality improvement.
-
-Compare
-
-- Before trimming
-- After trimming
-
----
-
-## Step 6 — Short Read Assembly
-
-Assemble the genome using only Illumina paired-end reads.
-
-Assembler
-
-- Unicycler
-
-Output
-
-- assembly.fasta
-
-Evaluate the assembly using QUAST.
-
----
-
-## Step 7 — Long Read Assembly
-
-Assemble the genome using only Nanopore reads.
-
-Assembler
-
-- Unicycler
-
-Output
-
-- assembly.fasta
-
-Evaluate using QUAST.
-
----
-
-## Step 8 — Hybrid Genome Assembly
-
-Combine
-
-- Illumina reads
-- Nanopore reads
-
-Run Unicycler in Hybrid mode.
-
-Evaluate using QUAST.
-
----
-
-## Step 9 — Compare All Assemblies
-
-Compare
-
-- Short Read Assembly
-- Long Read Assembly
-- Hybrid Assembly
-
-Metrics generated by QUAST include:
-
-- Number of contigs
-- Largest contig
-- Total assembly length
-- GC content
-- N50
-- L50
-- Genome fraction
-- Misassemblies
-
----
-
-## Step 10 — Conservative Hybrid Assembly
-
-Run Unicycler using
-
-```
---mode conservative
-```
-
-This mode prioritizes assembly accuracy and reduces aggressive graph simplification.
-
----
-
-## Step 11 — Bold Hybrid Assembly
-
-Run Unicycler using
-
-```
---mode bold
-```
-
-This mode is more aggressive and attempts to produce more contiguous assemblies.
-
----
-
-## Step 12 — Final Assembly Comparison
-
-Compare the following assemblies:
-
-- Short Read
-- Long Read
-- Hybrid
-- Conservative Hybrid
-- Bold Hybrid
-
-Generate a final QUAST report to evaluate assembly quality.
-
----
-
-# Expected Output
-
-```
-FastQC Reports
-NanoPlot Report
-Trimmed Reads
-Assembly FASTA Files
-QUAST Reports
-Final Comparative Assembly Report
-```
-
----
-
-# Pipeline Summary
-
-```
-Raw Reads
-     │
-     ▼
- FastQC
-     │
-     ▼
- NanoPlot
-     │
-     ▼
- Trim Galore
-     │
-     ▼
- FastQC (After Trim)
-     │
-     ▼
- ┌───────────────┬───────────────┬─────────────────┐
- │               │               │
- ▼               ▼               ▼
-Short Read   Long Read      Hybrid Assembly
-Assembly      Assembly
- │               │               │
- └───────┬───────┴───────┬───────┘
-         ▼               ▼
- Conservative      Bold Mode
-     Hybrid          Hybrid
-         │               │
-         └───────┬───────┘
-                 ▼
+## 🔄 Pipeline Summary
+
+```text
+Raw Illumina Reads         Nanopore Reads
+        │                       │
+        ▼                       ▼
+      FastQC               NanoPlot
+        │                       │
+        └──────────┬────────────┘
+                   ▼
+             Trim Galore
+                   ▼
+        FastQC (After Trim)
+                   ▼
+      ┌────────────┼─────────────┐
+      ▼            ▼             ▼
+ Short Read    Long Read      Hybrid
+  Assembly      Assembly      Assembly
+      │            │             │
+      └────────────┼─────────────┘
+                   ▼
+     Conservative & Bold Modes
+                   ▼
           QUAST Comparison
-                 ▼
-         Final Assembly Report
+                   ▼
+      Best Genome Assembly
 ```
 
 ---
 
-# Requirements
+## 📊 Expected Output
 
-- Linux (Ubuntu recommended)
+- FastQC reports
+- NanoPlot report
+- Trimmed Illumina reads
+- Genome assemblies (FASTA)
+- QUAST reports
+- Final comparative assembly report
+
+---
+
+## 💻 Requirements
+
+- Ubuntu/Linux
 - Conda
 - FastQC
 - NanoPlot
@@ -294,16 +124,15 @@ Assembly      Assembly
 
 ---
 
-# Author
+## 👨‍💻 Author
 
 **Keshav Pande**
 
-M.Sc. Big Data Biology
-
+M.Sc. Big Data Biology  
 Institute of Bioinformatics and Applied Biotechnology (IBAB)
 
 ---
 
-# License
+## 📜 License
 
 This project is intended for educational and research purposes.
